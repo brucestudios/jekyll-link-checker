@@ -1,63 +1,91 @@
 # Jekyll Link Checker
 
-A Jekyll plugin to check for broken links in your site.
+A simple, fast link checker for Jekyll (and other static) sites. It scans your generated site for broken internal and external links.
+
+## Features
+
+- Checks internal links (relative and absolute within the site)
+- Checks external links (HTTP/HTTPS)
+- Ignores links to anchors on the same page (optional)
+- Configurable timeout and user agent
+- Outputs results in a clear, actionable format
+- Can be used as a command-line tool or imported as a Python module
 
 ## Installation
 
-Add this line to your Jekyll site's `Gemfile`:
-
-```ruby
-gem "jekyll-link-checker"
+```bash
+pip install jekyll-link-checker
 ```
 
-And then execute:
+Or clone the repository and install in development mode:
 
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install jekyll-link-checker
+```bash
+git clone https://github.com/yourusername/jekyll-link-checker.git
+cd jekyll-link-checker
+pip install -e .
+```
 
 ## Usage
 
-Enable the plugin in your Jekyll site's `_config.yml`:
+### Command Line
 
-```yaml
-plugins:
-  - jekyll-link-checker
+After building your Jekyll site (usually in `_site`), run:
 
-link_checker:
-  enabled: true
+```bash
+jekyll-link-checker _site
 ```
 
-The plugin will run after each Jekyll build and report any broken links found in the generated HTML files.
+Options:
+
+- `--ignore-anchors`: Ignore links that point to anchors on the same page (e.g., `#section`)
+- `--timeout SECONDS`: Set timeout for external requests (default: 10)
+- `--user-agent STRING`: Set custom user agent for external requests
+- `--external`: Also check external links (enabled by default, use `--no-external` to skip)
+- `--internal`: Also check internal links (enabled by default, use `--no-internal` to skip)
+- `--verbose`: Show progress and details
+
+### As a Library
+
+```python
+from jekyll_link_checker import LinkChecker
+
+checker = LinkChecker(base_url="https://example.com")
+broken = checker.check_site("_site")
+if broken:
+    print("Broken links found:")
+    for link, error in broken.items():
+        print(f"  {link}: {error}")
+else:
+    print("No broken links found!")
+```
 
 ## Configuration
 
-You can disable the link checker by setting `enabled` to `false` in the `link_checker` section of `_config.yml`.
+You can also configure the checker via a `.jekyll-link-checker` file in YAML format:
 
-## How it works
+```yaml
+timeout: 15
+user_agent: "MySite LinkChecker/1.0"
+ignore_anchors: true
+check_external: true
+check_internal: true
+```
 
-The plugin scans all generated HTML files (pages and posts) for anchor tags (`<a>`) and extracts the `href` attribute.
-It then checks each link for:
-- Validity (not empty, not a fragment, not a mailto:, not javascript:, not a data URI)
-- Whether the URL is absolute and uses http or https scheme
-- Whether the host has a valid domain suffix (using the PublicSuffix list)
+## Why This Tool?
 
-Note: This plugin does not perform actual HTTP requests to check if the link is reachable. It only validates the URL format and domain.
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `rake spec` to run the tests.
-
-To install this gem onto your local machine, run `bundle exec rake install`.
-
-To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+- Jekyll sites can accumulate broken links over time, especially when linking to external resources.
+- This tool is lightweight, has minimal dependencies, and focuses on doing one thing well.
+- It integrates easily into your site's build process or CI pipeline.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/brucestudios/jekyll-link-checker.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Inspired by the need to maintain a personal Jekyll blog without broken links.
+- Uses the excellent `requests` and `beautifulsoup4` libraries.
