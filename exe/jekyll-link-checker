@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+require "jekyll/link-checker"
+
+puts "Jekyll Link Checker version #{Jekyll::LinkChecker::VERSION}"
